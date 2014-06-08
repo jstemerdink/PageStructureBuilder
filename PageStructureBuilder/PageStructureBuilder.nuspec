@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Joel Abrahamsson, Mark Everard</authors>
+    <owners>Mark Everard</owners>
+    <projectUrl>https://github.com/markeverard/PageStructureBuilder</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Automatically organize EPiServer 7.5 pages by date, first letter in their names, or some other extensible criteria.</description>
+    <copyright>Copyright 2014</copyright>
+  </metadata>
+    <files>
+        <file src="bin\Release\$id$.pdb" target="lib\net451\" />
+    </files>
+
+</package>

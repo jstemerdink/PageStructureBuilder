@@ -6,80 +6,95 @@ using EPiServer.Core;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Security;
+using EPiServer.ServiceLocation;
 
 namespace PageStructureBuilder
 {
-    [ModuleDependency(typeof(PageTypeBuilder.Initializer))]
+    [InitializableModule]
     public class PageStructureBuilderModule : IInitializableModule
     {
         public void Initialize(InitializationEngine context)
         {
-            DataFactory.Instance.CreatingPage += DataFactoryCreatingPage;
-            DataFactory.Instance.MovedPage += DataFactoryMovedPage;
+            var contentEvents = ServiceLocator.Current.GetInstance<IContentEvents>();
+
+            contentEvents.CreatingContent += ContentEventsOnCreatingContent;
+            contentEvents.MovingContent += ContentEventsOnMovingContent;
         }
 
-        void DataFactoryCreatingPage(object sender, PageEventArgs e)
+        private void ContentEventsOnCreatingContent(object sender, ContentEventArgs contentEventArgs)
         {
-            var parentLink = e.Page.ParentLink;
-            var page = e.Page;
-            parentLink = GetNewParent(parentLink, page);
+            if (!(contentEventArgs.Content is PageData))
+                return;
 
-            e.Page.ParentLink = parentLink;
+            var parentLink = contentEventArgs.Content.ParentLink;
+            var page = contentEventArgs.Content as PageData;
+            parentLink = GetNewParent(parentLink as PageReference, page);
+
+            contentEventArgs.Content.ParentLink = parentLink;
         }
 
-        private PageReference GetNewParent(
-            PageReference originalParentLink, PageData page)
+        private void ContentEventsOnMovingContent(object sender, ContentEventArgs contentEventArgs)
+        {
+            if (!(contentEventArgs.Content is PageData))
+                return;
+
+            var parentLink = contentEventArgs.TargetLink;
+            var page = GetPage(contentEventArgs.ContentLink) as PageData;
+            parentLink = GetNewParent(parentLink as PageReference, page);
+
+            if (!PageReference.IsValue(parentLink as PageReference) || contentEventArgs.TargetLink.CompareToIgnoreWorkID(parentLink)) 
+                return;
+
+            var contentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
+            contentRepository.Move(page.ContentLink, parentLink, AccessLevel.NoAccess, AccessLevel.NoAccess);
+        }
+
+        private PageReference GetNewParent(PageReference originalParentLink, PageData page)
         {
             var queriedParents = new List<PageReference>();
-
             var organizingParent = GetChildrenOrganizer(originalParentLink);
 
             PageReference parentLink = originalParentLink;
-            while (organizingParent != null 
-                && ListContains(queriedParents, parentLink))
+
+            while (organizingParent != null && ListContains(queriedParents, parentLink))
             {
                 queriedParents.Add(parentLink);
                 var newParentLink = organizingParent.GetParentForPage(page);
+                
                 if (PageReference.IsValue(newParentLink))
-                {
                     parentLink = newParentLink;
-                }
+                
                 organizingParent = GetChildrenOrganizer(parentLink);
             }
+
             return parentLink;
         }
 
-        private bool ListContains(List<PageReference> queriedParents, PageReference parentLink)
+        private bool ListContains(IEnumerable<ContentReference> queriedParents, ContentReference parentLink)
         {
             return queriedParents.Count(p => p.CompareToIgnoreWorkID(parentLink)) == 0;
         }
 
-        private IOrganizeChildren GetChildrenOrganizer(PageReference pageLink)
+        private IOrganizeChildren GetChildrenOrganizer(ContentReference pageLink)
         {
-            if (PageReference.IsNullOrEmpty(pageLink))
-            {
+            if (ContentReference.IsNullOrEmpty(pageLink))
                 return null;
-            }
 
-            return DataFactory.Instance.GetPage(pageLink) as IOrganizeChildren;
+            return GetPage(pageLink) as IOrganizeChildren;
         }
 
-        void DataFactoryMovedPage(object sender, PageEventArgs e)
+        private IContent GetPage(ContentReference contentLink)
         {
-            var parentLink = e.TargetLink;
-            var page = DataFactory.Instance.GetPage(e.PageLink);
-            parentLink = GetNewParent(parentLink, page);
-
-            if (PageReference.IsValue(parentLink) && !e.TargetLink.CompareToIgnoreWorkID(parentLink))
-            {
-                DataFactory.Instance.Move(page.PageLink, parentLink, AccessLevel.NoAccess, AccessLevel.NoAccess);
-            }
+            var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+            return contentLoader.Get<IContent>(contentLink);
         }
 
         public void Uninitialize(InitializationEngine context)
         {
-            DataFactory.Instance.CreatingPage -= DataFactoryCreatingPage;
-            DataFactory.Instance.MovingPage -= DataFactoryMovedPage;
+            var contentEvents = ServiceLocator.Current.GetInstance<IContentEvents>();
+
+            contentEvents.CreatingContent -= ContentEventsOnCreatingContent;
+            contentEvents.MovingContent -= ContentEventsOnMovingContent;
         }
 
         public void Preload(string[] parameters)

@@ -2,51 +2,52 @@
 using System.Linq;
 using EPiServer;
 using EPiServer.Core;
+using EPiServer.DataAbstraction;
 using EPiServer.DataAccess;
 using EPiServer.Security;
-using PageTypeBuilder;
 
 namespace PageStructureBuilder
 {
     public class StructureHelper
     {
-        public virtual TResult GetOrCreateChildPage<TResult>(
-            PageReference parentLink, string pageName)
-            where TResult : PageData
+        private IContentRepository _contentRepository;
+        private IContentTypeRepository _contentTypeRepository;
+
+        public StructureHelper(IContentRepository contentRepository, IContentTypeRepository contentTypeRepository)
+        {
+            _contentRepository = contentRepository;
+            _contentTypeRepository = contentTypeRepository;
+        }
+
+        public virtual TResult GetOrCreateChildPage<TResult>(PageReference parentLink, string pageName) where TResult : PageData
         {
             var child = GetExistingChild<TResult>(parentLink, pageName);
             if (child != null)
-            {
                 return child;
-            }
 
             child = CreateChild<TResult>(parentLink, pageName);
             return child;
         }
 
-        private TResult GetExistingChild<TResult>(
-            PageReference parentLink, string pageName)
-            where TResult : PageData
+        private TResult GetExistingChild<TResult>(PageReference parentLink, string pageName) where TResult : PageData
         {
-            var children = DataFactory.Instance.GetChildren(parentLink);
+            var children = _contentRepository.GetChildren<PageData>(parentLink);
             return children
                 .OfType<TResult>()
-                .FirstOrDefault(c => c.PageName.Equals(
-                    pageName, StringComparison.InvariantCulture));
+                .FirstOrDefault(c => c.PageName.Equals(pageName, StringComparison.InvariantCulture));
         }
 
-        private TResult CreateChild<TResult>(
-            PageReference parentLink, string pageName)
-            where TResult : PageData
+        private TResult CreateChild<TResult>(PageReference parentLink, string pageName) where TResult : PageData
         {
             TResult child;
-            var resultPageTypeId = PageTypeResolver.Instance
-                .GetPageTypeID(typeof(TResult));
-            child = DataFactory.Instance.GetDefaultPageData(
-                parentLink, resultPageTypeId.Value) as TResult;
+
+            var resultPageType = _contentTypeRepository.Load(typeof (TResult));
+            
+            child = _contentRepository.GetDefault<PageData>(parentLink, resultPageType.ID) as TResult;
             child.PageName = pageName;
-            DataFactory.Instance.Save(
-                child, SaveAction.Publish, AccessLevel.NoAccess);
+            
+            _contentRepository.Save(child, SaveAction.Publish, AccessLevel.NoAccess);
+            
             return child;
         }
     }

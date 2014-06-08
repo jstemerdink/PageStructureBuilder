@@ -2,9 +2,7 @@
 
 namespace PageStructureBuilder
 {
-    public abstract class AlphabeticalStructureBase<TCharacter> 
-        : SingleLevelStructureBase<TCharacter>
-        where TCharacter : PageData, new()
+    public abstract class AlphabeticalStructureBase<TCharacter> : SingleLevelStructureBase<TCharacter> where TCharacter : PageData, new()
     {
         protected override string GetContainerPageName(PageData childPage)
         {
