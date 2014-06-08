@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>Joel Abrahamsson, Mark Everard</authors>
+    <id>PageStructureBuilder</id>
+    <version>2.0.0.0</version>
+    <title>PageStructureBuilder</title>
+    <authors>Joel Abrahamsson</authors>
     <owners>Mark Everard</owners>
     <projectUrl>https://github.com/markeverard/PageStructureBuilder</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -12,7 +12,9 @@
     <copyright>Copyright 2014</copyright>
   </metadata>
     <files>
-        <file src="bin\Release\$id$.pdb" target="lib\net451\" />
+        <file src="bin\Release\4\PageStructureBuilder.dll" target="lib\net40\" />
+        <file src="bin\Release\4.5\PageStructureBuilder.dll" target="lib\net45\" />
+        <file src="bin\Release\4.5.1\PageStructureBuilder.dll" target="lib\net451\" />
     </files>
 
 </package>
