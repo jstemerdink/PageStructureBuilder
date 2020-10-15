@@ -2,19 +2,20 @@
 <package >
   <metadata>
     <id>PageStructureBuilder</id>
-    <version>2.0.0.0</version>
+    <version>3.0.0</version>
     <title>PageStructureBuilder</title>
     <authors>Joel Abrahamsson</authors>
     <owners>Mark Everard</owners>
     <projectUrl>https://github.com/markeverard/PageStructureBuilder</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Automatically organize EPiServer 7.5 pages by date, first letter in their names, or some other extensible criteria.</description>
-    <copyright>Copyright 2014</copyright>
+    <description>Automatically organize EPiServer pages by date, first letter in their names, or some other extensible criteria.</description>
+    <copyright>Copyright 2020</copyright>
   </metadata>
     <files>
-        <file src="bin\Release\4\PageStructureBuilder.dll" target="lib\net40\" />
-        <file src="bin\Release\4.5\PageStructureBuilder.dll" target="lib\net45\" />
-        <file src="bin\Release\4.5.1\PageStructureBuilder.dll" target="lib\net451\" />
+        <file src="bin\Release\PageStructureBuilder.dll" target="lib\net461\" />
     </files>
-
+  <dependencies>
+    <dependency id="EPiServer.CMS.Core" version="11.1.0" />
+    <dependency id="EPiServer.Framework" version="11.1.0" />
+  </dependencies>
 </package>

@@ -4,6 +4,6 @@ namespace PageStructureBuilder
 {
     public interface IOrganizeChildren
     {
-        PageReference GetParentForPage(PageData content);
+        ContentReference GetParentForPage(PageData content);
     }
 }

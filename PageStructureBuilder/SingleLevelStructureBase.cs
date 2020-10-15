@@ -1,29 +1,55 @@
-﻿using EPiServer;
-using EPiServer.Core;
-using EPiServer.DataAbstraction;
-using EPiServer.ServiceLocation;
-
-namespace PageStructureBuilder
+﻿namespace PageStructureBuilder
 {
-    public abstract class SingleLevelStructureBase<TContainer> : PageData, IOrganizeChildren where TContainer : PageData
+    using EPiServer.Core;
+
+    /// <summary>
+    /// Class SingleLevelStructureBase.
+    /// Implements the <see cref="EPiServer.Core.PageData" />
+    /// Implements the <see cref="PageStructureBuilder.IOrganizeChildren" />
+    /// </summary>
+    /// <typeparam name="TContainer">The type of the t container.</typeparam>
+    /// <seealso cref="EPiServer.Core.PageData" />
+    /// <seealso cref="PageStructureBuilder.IOrganizeChildren" />
+    public abstract class SingleLevelStructureBase<TContainer> : PageData, IOrganizeChildren
+        where TContainer : PageData
     {
-        protected Injected<IContentRepository> ContentRespository { get; set; }
-        protected Injected<IContentTypeRepository> ContentTypeRespository { get; set; } 
-        
-        public virtual PageReference GetParentForPage(PageData page)
+        /// <summary>
+        /// Gets the parent for page.
+        /// </summary>
+        /// <param name="page">The page.</param>
+        /// <returns>The parent <see cref="ContentReference"/>.</returns>
+        /// <exception cref="EPiServer.ServiceLocation.ActivationException">if there is are errors resolving the service instance.</exception>
+        public virtual ContentReference GetParentForPage(PageData page)
         {
+            if (page == null)
+            {
+                return this.ContentLink;
+            }
+
             if (page is TContainer)
-                return PageLink;
+            {
+                return this.ContentLink;
+            }
 
-            if (string.IsNullOrEmpty(page.PageName))
-                return PageLink;
+            if (string.IsNullOrEmpty(value: page.PageName))
+            {
+                return this.ContentLink;
+            }
 
-            var structureHelper = new StructureHelper(ContentRespository.Service, ContentTypeRespository.Service);
+            StructureHelper structureHelper = new StructureHelper();
 
-            var container = structureHelper.GetOrCreateChildPage<TContainer>(PageLink, GetContainerPageName(page));
+            TContainer container = structureHelper.GetOrCreateChildPage<TContainer>(
+                parentLink: this.ContentLink,
+                this.GetContainerPageName(childPage: page));
+
             return container.PageLink;
         }
 
+        /// <summary>
+        /// Gets the name of the container page.
+        /// </summary>
+        /// <param name="childPage">The child page.</param>
+        /// <returns>The name of the container page.</returns>
         protected abstract string GetContainerPageName(PageData childPage);
     }
 }
