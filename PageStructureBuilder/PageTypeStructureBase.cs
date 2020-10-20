@@ -11,7 +11,7 @@
     /// Class PageTypeStructureBase.
     /// Implements the <see cref="SingleLevelStructureBase{TContainer}" />
     /// </summary>
-    /// <typeparam name="TContainer">The type of the t container.</typeparam>
+    /// <typeparam name="TContainer">The type of <see cref="PageData"/> to use for the level container.</typeparam>
     /// <seealso cref="SingleLevelStructureBase{TContainer}" />
     public abstract class PageTypeStructureBase<TContainer> : SingleLevelStructureBase<TContainer>
         where TContainer : PageData

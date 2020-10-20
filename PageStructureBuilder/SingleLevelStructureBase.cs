@@ -7,7 +7,7 @@
     /// Implements the <see cref="EPiServer.Core.PageData" />
     /// Implements the <see cref="PageStructureBuilder.IOrganizeChildren" />
     /// </summary>
-    /// <typeparam name="TContainer">The type of the t container.</typeparam>
+    /// <typeparam name="TContainer">The type of <see cref="PageData"/> to use for the level container.</typeparam>
     /// <seealso cref="EPiServer.Core.PageData" />
     /// <seealso cref="PageStructureBuilder.IOrganizeChildren" />
     public abstract class SingleLevelStructureBase<TContainer> : PageData, IOrganizeChildren
@@ -41,6 +41,11 @@
             TContainer container = structureHelper.GetOrCreateChildPage<TContainer>(
                 parentLink: this.ContentLink,
                 this.GetContainerPageName(childPage: page));
+
+            if (container == null)
+            {
+                return this.ContentLink;
+            }
 
             return container.PageLink;
         }

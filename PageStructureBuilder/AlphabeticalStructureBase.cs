@@ -8,7 +8,7 @@
     /// Class AlphabeticalStructureBase.
     /// Implements the <see cref="SingleLevelStructureBase{TCharacter}" />
     /// </summary>
-    /// <typeparam name="TCharacter">The type of the t character.</typeparam>
+    /// <typeparam name="TCharacter">The type of <see cref="PageData"/> to use for the character container.</typeparam>
     /// <seealso cref="SingleLevelStructureBase{TCharacter}" />
     public abstract class AlphabeticalStructureBase<TCharacter> : SingleLevelStructureBase<TCharacter>
         where TCharacter : PageData, new()

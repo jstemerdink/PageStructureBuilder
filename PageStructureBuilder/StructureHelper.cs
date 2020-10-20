@@ -82,6 +82,11 @@
                                 parentLink: parentLink,
                                 contentTypeID: resultPageType.ID) as TResult;
 
+            if (child == null)
+            {
+                return null;
+            }
+
             child.PageName = pageName;
 
             this.contentRepository.Save(content: child, action: SaveAction.Publish, access: AccessLevel.NoAccess);

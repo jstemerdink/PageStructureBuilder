@@ -9,9 +9,9 @@
     /// Implements the <see cref="PageData" />
     /// Implements the <see cref="IOrganizeChildren" />
     /// </summary>
-    /// <typeparam name="TYear">The type of the t year.</typeparam>
-    /// <typeparam name="TMonth">The type of the t month.</typeparam>
-    /// <typeparam name="TDay">The type of the t day.</typeparam>
+    /// <typeparam name="TYear">The type of <see cref="PageData"/> to use for the year container.</typeparam>
+    /// <typeparam name="TMonth">The type of <see cref="PageData"/> to use for the month container.</typeparam>
+    /// <typeparam name="TDay">TheThe type of <see cref="PageData"/> to use for the day container.</typeparam>
     /// <seealso cref="PageData" />
     /// <seealso cref="IOrganizeChildren" />
     public abstract class ThreeLevelDateStructureBase<TYear, TMonth, TDay> : PageData, IOrganizeChildren
@@ -21,7 +21,7 @@
         /// Gets the parent for page.
         /// </summary>
         /// <param name="page">The page.</param>
-        /// <returns>The parent <see cref="ContentReference"/>.</returns>
+        /// <returns>The <see cref="ContentReference"/> for the parent of the <paramref name="page"/>.</returns>
         /// <exception cref="EPiServer.ServiceLocation.ActivationException">if there is are errors resolving the service instance.</exception>
         public ContentReference GetParentForPage(PageData page)
         {
@@ -38,15 +38,25 @@
                 parentLink: this.PageLink,
                 pageDate.Year.ToString(this.MasterLanguage));
 
+            if (yearPage == null)
+            {
+                return this.ContentLink;
+            }
+
             TMonth monthPage = structureHelper.GetOrCreateChildPage<TMonth>(
                 parentLink: yearPage.PageLink,
                 pageDate.Month.ToString(this.MasterLanguage));
+
+            if (monthPage == null)
+            {
+                return yearPage.ContentLink;
+            }
 
             TDay dayPage = structureHelper.GetOrCreateChildPage<TDay>(
                 parentLink: monthPage.PageLink,
                 pageDate.Day.ToString(this.MasterLanguage));
 
-            return dayPage.PageLink;
+            return dayPage == null ? monthPage.ContentLink : dayPage.ContentLink;
         }
 
         /// <summary>
